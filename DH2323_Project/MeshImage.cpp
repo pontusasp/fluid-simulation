@@ -3,7 +3,7 @@
 #include "utils.h"
 #include <stdio.h>
 
-MeshImage::MeshImage(float width, float height, unsigned int resolutionX, unsigned int resolutionY)
+void MeshImage::Init(float width, float height, unsigned int resolutionX, unsigned int resolutionY)
 {
 	this->width = width;
 	this->height = height;

@@ -12,7 +12,7 @@ struct QuadPointer {
 class MeshImage : public sf::Drawable, public sf::Transformable
 {
 public:
-	MeshImage(float width, float height, unsigned int resolutionX, unsigned int resolutionY);
+	void Init(float width, float height, unsigned int resolutionX, unsigned int resolutionY);
 
 	QuadPointer get(sf::Vector2u);
 

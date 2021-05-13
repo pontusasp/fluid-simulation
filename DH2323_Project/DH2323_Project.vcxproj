@@ -132,10 +132,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="FluidSimulation.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MeshImage.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="FluidSimulation.h" />
     <ClInclude Include="MeshImage.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>
