@@ -1,21 +1,19 @@
 #include <SFML/Graphics.hpp>
 #include <stdio.h>
 
+#include "MeshImage.h"
+
 using namespace sf;
 
 int main()
 {
 	sf::RenderWindow window(sf::VideoMode(800, 800), "Fluid Simulation Project by Pontus Asp");
 
-	VertexArray triangle(Triangles, 3);
+	MeshImage meshImage(800, 800, 20, 20);
 
-	triangle[0].position = Vector2f(10.f, 10.f);
-	triangle[1].position = Vector2f(100.f, 10.f);
-	triangle[2].position = Vector2f(100.f, 100.f);
-
-	triangle[0].color = Color::Red;
-	triangle[1].color = Color::Blue;
-	triangle[2].color = Color::Green;
+	bool mouseLeftDown = false;
+	bool mouseRightDown = false;
+	Vector2f mouseCoord;
 
 	while (window.isOpen())
 	{
@@ -33,10 +31,34 @@ int main()
 					printf("Unbound key %d.\n", event.key.code);
 				}
 			}
+			if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
+				mouseLeftDown = true;
+			}
+			if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left) {
+				mouseLeftDown = false;
+			}
+			if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Right) {
+				mouseRightDown = true;
+			}
+			if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Right) {
+				mouseRightDown = false;
+			}
+			if (event.type == sf::Event::MouseMoved) {
+				mouseCoord.x = event.mouseMove.x;
+				mouseCoord.y = event.mouseMove.y;
+			}
+		}
+
+		if (mouseLeftDown) {
+			meshImage.paintColor(meshImage.fromScreenSpacef(mouseCoord), sf::Color(255, 0, 0, 50));
+		}
+
+		if (mouseRightDown) {
+			meshImage.setColor(meshImage.fromScreenSpace(mouseCoord), sf::Color::Blue);
 		}
 
 		window.clear();
-		window.draw(triangle);
+		window.draw(meshImage);
 		window.display();
 	}
 
