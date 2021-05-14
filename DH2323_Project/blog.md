@@ -37,3 +37,7 @@ https://paveldogreat.github.io/WebGL-Fluid-Simulation/
 
 # # 2021-05-14
 - Created FluidSimulation class and started working on implementing the logic for the fluid simulation.
+
+## Working on the implementation
+When working on the implementation I went between the two papers that I read yesterday to try to figure out how I should write all my code. After implementing everything needed to diffuse the added density (or well, basically added dye), I noticed that it only diffused on the horizontal plane. So if I would add density at the middle of the screen it would only diffuse towards the sides, not up and down. After I reviewed how the movement of the density was calculated in the Advect function it seems to me this is in fact how the article ment for it to work, so even though I am not completely happy with this I kept going to see how the end result would end up looking.  
+After implementing the rest of the code needed for the simulation this issue was still there! So I started suspecting that my implementation was not correct and that the problem I saw after implementing the density stuff *is* actually a real problem. At the point of writing this I still have not solved it but will keep looking for the cause.
