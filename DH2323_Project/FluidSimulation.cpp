@@ -35,7 +35,7 @@ void FluidSimulation::HandleMouse(sf::Window& window)
 
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 	{
-		AddDensity(quadCoord.x, quadCoord.y, .25f);
+		AddDensity(quadCoord.x, quadCoord.y, 100.25f);
 		AddVelocity(quadCoord.x, quadCoord.y, .2f, .6f);
 	}
 }
@@ -83,108 +83,128 @@ void FluidSimulation::Step(float dt, unsigned int iterations)
 	Advect(Axis::none, density, s, vx, vy, dt, this->size);
 }
 
-void FluidSimulation::SetBounds(Axis axis, std::vector<float>& vec, unsigned int N)
+// FIXED
+void FluidSimulation::SetBounds(Axis axis, std::vector<float>& x, unsigned int N)
 {
-	for (unsigned int i = 1; i <= N; i++)
-	{
-		vec[IX(0    , i)] = axis == Axis::x ? -vec[IX(1, i)] : vec[IX(1, i)];
-		vec[IX(N + 1, i)] = axis == Axis::x ? -vec[IX(N, i)] : vec[IX(N, i)];
-		vec[IX(i, 0    )] = axis == Axis::y ? -vec[IX(i, 1)] : vec[IX(i, 1)];
-		vec[IX(i, N + 1)] = axis == Axis::y ? -vec[IX(i, N)] : vec[IX(i, N)];
+	for (int i = 1; i < N - 1; i++) {
+		x[IX(i, 0)] = axis == Axis::y ? -x[IX(i, 1)] : x[IX(i, 1)];
+		x[IX(i, N - 1)] = axis == Axis::y ? -x[IX(i, N - 2)] : x[IX(i, N - 2)];
 	}
-	vec[IX(0, 0)] = 0.5f * (vec[IX(1, 0)] + vec[IX(0, 1)]);
-	vec[IX(0, N+1)] = 0.5f * (vec[IX(1, N+1)] + vec[IX(0, N)]);
-	vec[IX(N+1, 0)] = 0.5f * (vec[IX(N, 0)] + vec[IX(N+1, 1)]);
-	vec[IX(N+1, N+1)] = 0.5f * (vec[IX(N, N+1)] + vec[IX(N+1, N)]);
+	for (int j = 1; j < N - 1; j++) {
+		x[IX(0, j)] = axis == Axis::x ? -x[IX(1, j)] : x[IX(1, j)];
+		x[IX(N - 1, j)] = axis == Axis::x ? -x[IX(N - 2, j)] : x[IX(N - 2, j)];
+	}
+
+	x[IX(0, 0)]     = 0.5f * (x[IX(1, 0)] + x[IX(0, 1)]);
+	x[IX(0, N-1)]   = 0.5f * (x[IX(1, N-1)] + x[IX(0, N-2)]);
+	x[IX(N-1, 0)]   = 0.5f * (x[IX(N-2, 0)] + x[IX(N-1, 1)]);
+	x[IX(N-1, N-1)] = 0.5f * (x[IX(N-2, N-1)] + x[IX(N-1, N-2)]);
 }
 
+// FIXED
 void FluidSimulation::LinearSolve(Axis axis, std::vector<float>& vec, std::vector<float>& vec0, float a, float c, unsigned int iterations, unsigned int N)
 {
-	for (unsigned int k = 0; k < iterations; k++)
-	{
-		for (unsigned int i = 1; i <= N; i++)
-			for (unsigned int j = 1; j <= N; j++)
-			{
-				vec[IX(i, j)] = (vec0[IX(i, j)] + a * (vec[IX(i - 1, j)] + vec[IX(i + 1, j)] +
-					vec[IX(i, j - 1)] + vec[IX(i, j + 1)])) / (1 + 4 * a);
+	float cRecip = 1.0 / c;
+	for (int k = 0; k < iterations; k++) {
+		for (int j = 1; j < N - 1; j++) {
+			for (int i = 1; i < N - 1; i++) {
+				vec[IX(i, j)] =
+					(vec0[IX(i, j)]
+						+ a * (vec[IX(i + 1, j)]
+							+ vec[IX(i - 1, j)]
+							+ vec[IX(i, j + 1)]
+							+ vec[IX(i, j - 1)]
+							)) * cRecip;
 			}
+		}
 		SetBounds(axis, vec, N);
 	}
 }
 
+// FIXED
 void FluidSimulation::Diffuse(Axis axis, std::vector<float>& vec, std::vector<float>& vec0, float diff, float dt, unsigned int iterations, unsigned int N)
 {
-	float a = dt * diff * N * N;
+	float a = dt * diff * (N - 2) * (N - 2);
 	LinearSolve(axis, vec, vec0, a, 1 + 6 * a, iterations, N);
 }
 
+// FIXED
 void FluidSimulation::Project(std::vector<float>& vx, std::vector<float>& vy, std::vector<float>& p, std::vector<float>& div, unsigned int iterations, unsigned int N)
 {
-	float h;
-	h = 1.0f / N;
-	for (unsigned int i = 1; i <= N; i++) {
-		for (unsigned int j = 1; j <= N; j++) {
-			div[IX(i, j)] = -0.5f*h*(vx[IX(i + 1, j)] - vx[IX(i - 1, j)] +
-				vy[IX(i, j + 1)] - vy[IX(i, j - 1)]);
+	for (int j = 1; j < N - 1; j++) {
+		for (int i = 1; i < N - 1; i++) {
+			div[IX(i, j)] = -0.5f*(
+				vx[IX(i + 1, j)]
+				- vx[IX(i - 1, j)]
+				+ vy[IX(i, j + 1)]
+				- vy[IX(i, j - 1)]
+				) / N;
 			p[IX(i, j)] = 0;
 		}
 	}
 	SetBounds(Axis::none, div, N);
 	SetBounds(Axis::none, p, N);
-	for (unsigned int k = 0; k < iterations; k++) {
-		for (unsigned int i = 1; i <= N; i++) {
-			for (unsigned int j = 1; j <= N; j++) {
-				p[IX(i, j)] = (div[IX(i, j)] + p[IX(i - 1, j)] + p[IX(i + 1, j)] +
-					p[IX(i, j - 1)] + p[IX(i, j + 1)]) / 4;
-			}
-		}
-		SetBounds(Axis::none, p, N);
-	}
-	for (unsigned int i = 1; i <= N; i++) {
-		for (unsigned int j = 1; j <= N; j++) {
-			vx[IX(i, j)] -= 0.5f*(p[IX(i + 1, j)] - p[IX(i - 1, j)]) / h;
-			vy[IX(i, j)] -= 0.5f*(p[IX(i, j + 1)] - p[IX(i, j - 1)]) / h;
+	LinearSolve(Axis::none, p, div, 1, 6, iterations, N);
+
+	for (int j = 1; j < N - 1; j++) {
+		for (int i = 1; i < N - 1; i++) {
+			vx[IX(i, j, k)] -= 0.5f * (p[IX(i + 1, j)]
+				- p[IX(i - 1, j)]) * N;
+			vy[IX(i, j, k)] -= 0.5f * (p[IX(i, j + 1)]
+				- p[IX(i, j - 1)]) * N;
 		}
 	}
 	SetBounds(Axis::x, vx, N);
-	SetBounds(Axis::y, vy, N);
+	SetBounds(Axis::y, vy, N);
 }
 
+// FIXED
 void FluidSimulation::Advect(Axis axis, std::vector<float>& vec, std::vector<float>& vec0, std::vector<float>& vx, std::vector<float>& vy, float dt, unsigned int N)
 {
-	int i0, j0, i1, j1;
-	float x, y, frac_x_inv, frac_y_inv, frac_x, frac_y, dt0;
-	dt0 = dt * N;
-	for (unsigned int i = 1; i <= N; i++) {
-		for (unsigned int j = 1; j <= N; j++) {
-			x = i - dt0 * vx[IX(i, j)];
-			y = j - dt0 * vy[IX(i, j)];
+	float i0, i1, j0, j1;
+
+	float dtx = dt * (N - 2);
+	float dty = dt * (N - 2);
+	float dtz = dt * (N - 2);
+
+	float s0, s1, t0, t1;
+	float tmp1, tmp2, x, y;
+
+	float Nfloat = N;
+	float ifloat, jfloat;
+	int i, j;
+
+	for (j = 1, jfloat = 1; j < N - 1; j++, jfloat++) {
+		for (i = 1, ifloat = 1; i < N - 1; i++, ifloat++) {
+			tmp1 = dtx * vx[IX(i, j)];
+			tmp2 = dty * vy[IX(i, j)];
+			x = ifloat - tmp1;
+			y = jfloat - tmp2;
 
 			if (x < 0.5f) x = 0.5f;
-			if (x > N + 0.5f) x = N + 0.5f;
-			i0 = (int)x;
-			i1 = i0 + 1;
-
+			if (x > Nfloat + 0.5f) x = Nfloat + 0.5f;
+			i0 = floorf(x);
+			i1 = i0 + 1.0f;
 			if (y < 0.5f) y = 0.5f;
-			if (y > N + 0.5f) y = N + 0.5f;
-			j0 = (int)y;
-			j1 = j0 + 1;
+			if (y > Nfloat + 0.5f) y = Nfloat + 0.5f;
+			j0 = floorf(y);
+			j1 = j0 + 1.0f;
 
-			frac_x = x - i0; // extract decimal value from x
-			frac_x_inv = 1 - frac_x;
+			s1 = x - i0;
+			s0 = 1.0f - s1;
+			t1 = y - j0;
+			t0 = 1.0f - t1;
 
-			frac_y = y - j0; // extract decimal value from y
-			frac_y_inv = 1 - frac_y;
+			int i0i = i0;
+			int i1i = i1;
+			int j0i = j0;
+			int j1i = j1;
 
 			vec[IX(i, j)] =
-				frac_x_inv * (
-					frac_y_inv*vec0[IX(i0, j0)] +
-					frac_y * vec0[IX(i0, j1)]
-				) +
-				frac_x * (
-					frac_y_inv*vec0[IX(i1, j0)] +
-					frac_y * vec0[IX(i1, j1)]
-				);
+				s0 * (t0 * vec0[IX(i0i, j0i)]) +
+				(t1 * vec0[IX(i0i, j1i)]) +
+				s1 * (t0 * vec0[IX(i1i, j0i)]) +
+				(t1 * vec0[IX(i1i, j1i)]);
 		}
 	}
 	SetBounds(axis, vec, N);
