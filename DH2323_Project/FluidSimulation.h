@@ -20,7 +20,7 @@ private:
 
 	unsigned int size;
 	float diff, visc;
-	std::vector<float> s;
+	std::vector<float> density0;
 	std::vector<float> density;
 
 	std::vector<float> vx;

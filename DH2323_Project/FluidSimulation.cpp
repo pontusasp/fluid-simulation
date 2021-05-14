@@ -13,7 +13,7 @@ FluidSimulation::FluidSimulation(unsigned int size, float diffusion, float visco
 	this->diff = diffusion;
 	this->visc = viscosity;
 
-	this->s.resize(N, 0.f);
+	this->density0.resize(N, 0.f);
 	this->density.resize(N, 0.f);
 
 	this->vx.resize(N, 0.f);
@@ -82,8 +82,8 @@ void FluidSimulation::Step(float dt, unsigned int iterations)
 
 	Project(vx, vy, vx0, vy0, iterations, this->size);
 
-	Diffuse(Axis::none, s, density, diff, dt, iterations, this->size);
-	Advect(Axis::none, density, s, vx, vy, dt, this->size);
+	Diffuse(Axis::none, density0, density, diff, dt, iterations, this->size);
+	Advect(Axis::none, density, density0, vx, vy, dt, this->size);
 }
 
 void FluidSimulation::SetBounds(Axis axis, std::vector<float>& vec, unsigned int N)
