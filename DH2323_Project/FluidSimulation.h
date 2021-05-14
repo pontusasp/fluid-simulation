@@ -2,14 +2,30 @@
 
 #include <SFML/Graphics.hpp>
 #include "MeshImage.h"
+#include <vector>
 
 class FluidSimulation : public sf::Drawable, public sf::Transformable
 {
 public:
-	FluidSimulation(unsigned int size);
+	FluidSimulation(unsigned int size, float diffusion, float viscosity);
+
+	void AddDensity(unsigned int x, unsigned int y, float amount);
+	void AddVelocity(unsigned int x, unsigned int y, float amountX, float amountY);
+	void Step(float dt);
 
 private:
 	MeshImage meshImage;
+
+	unsigned int size;
+	float diff, visc;
+	std::vector<float> s;
+	std::vector<float> density;
+
+	std::vector<float> vx;
+	std::vector<float> vy;
+
+	std::vector<float> vx0;
+	std::vector<float> vy0;
 
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const
 	{
