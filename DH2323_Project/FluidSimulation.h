@@ -36,7 +36,7 @@ private:
 	}
 
 	enum Axis {
-		none, x, y
+		none, xx, yy
 	};
 
 	static void SetBounds(Axis axis, std::vector<float>& vec, unsigned int N);

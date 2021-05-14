@@ -1,6 +1,6 @@
 #include "FluidSimulation.h"
 
-#define IX(x, y) (x + (N + 2) * y)
+#define IX(i, j) (i + (N + 2) * j)
 
 FluidSimulation::FluidSimulation(unsigned int size, float diffusion, float viscosity)
 {
@@ -36,7 +36,7 @@ void FluidSimulation::HandleMouse(sf::Window& window)
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 	{
 		AddDensity(quadCoord.x, quadCoord.y, .25f);
-		AddVelocity(quadCoord.x, quadCoord.y, .2f, .6f);
+		AddVelocity(quadCoord.x, quadCoord.y, .2f, .2f);
 	}
 }
 
@@ -69,13 +69,13 @@ void FluidSimulation::AddVelocity(unsigned int x, unsigned int y, float amountX,
 
 void FluidSimulation::Step(float dt, unsigned int iterations)
 {
-	Diffuse(Axis::x, vx0, vx, visc, dt, iterations, this->size);
-	Diffuse(Axis::y, vy0, vy, visc, dt, iterations, this->size);
+	Diffuse(Axis::xx, vx0, vx, visc, dt, iterations, this->size);
+	Diffuse(Axis::yy, vy0, vy, visc, dt, iterations, this->size);
 
 	Project(vx0, vy0, vx, vy, iterations, this->size);
 
-	Advect(Axis::x, vx, vx0, vx0, vy0, dt, this->size);
-	Advect(Axis::y, vy, vy0, vx0, vy0, dt, this->size);
+	Advect(Axis::xx, vx, vx0, vx0, vy0, dt, this->size);
+	Advect(Axis::yy, vy, vy0, vx0, vy0, dt, this->size);
 
 	Project(vx, vy, vx0, vy0, iterations, this->size);
 
@@ -87,10 +87,10 @@ void FluidSimulation::SetBounds(Axis axis, std::vector<float>& vec, unsigned int
 {
 	for (unsigned int i = 1; i <= N; i++)
 	{
-		vec[IX(0    , i)] = axis == Axis::x ? -vec[IX(1, i)] : vec[IX(1, i)];
-		vec[IX(N + 1, i)] = axis == Axis::x ? -vec[IX(N, i)] : vec[IX(N, i)];
-		vec[IX(i, 0    )] = axis == Axis::y ? -vec[IX(i, 1)] : vec[IX(i, 1)];
-		vec[IX(i, N + 1)] = axis == Axis::y ? -vec[IX(i, N)] : vec[IX(i, N)];
+		vec[IX(0    , i)] = axis == Axis::xx ? -vec[IX(1, i)] : vec[IX(1, i)];
+		vec[IX(N + 1, i)] = axis == Axis::xx ? -vec[IX(N, i)] : vec[IX(N, i)];
+		vec[IX(i, 0    )] = axis == Axis::yy ? -vec[IX(i, 1)] : vec[IX(i, 1)];
+		vec[IX(i, N + 1)] = axis == Axis::yy ? -vec[IX(i, N)] : vec[IX(i, N)];
 	}
 	vec[IX(0, 0)] = 0.5f * (vec[IX(1, 0)] + vec[IX(0, 1)]);
 	vec[IX(0, N+1)] = 0.5f * (vec[IX(1, N+1)] + vec[IX(0, N)]);
@@ -146,8 +146,8 @@ void FluidSimulation::Project(std::vector<float>& vx, std::vector<float>& vy, st
 			vy[IX(i, j)] -= 0.5f*(p[IX(i, j + 1)] - p[IX(i, j - 1)]) / h;
 		}
 	}
-	SetBounds(Axis::x, vx, N);
-	SetBounds(Axis::y, vy, N);
+	SetBounds(Axis::xx, vx, N);
+	SetBounds(Axis::yy, vy, N);
 }
 
 void FluidSimulation::Advect(Axis axis, std::vector<float>& vec, std::vector<float>& vec0, std::vector<float>& vx, std::vector<float>& vy, float dt, unsigned int N)
