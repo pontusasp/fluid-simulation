@@ -44,3 +44,21 @@ After implementing the rest of the code needed for the simulation this issue was
 
 ### Update on problem
 Many hours later I just noticed something that kind of makes me happy, but makes me also feel like I will have an even harder time finding the error. So, my issue is that if I add density it only diffuses to the sides - now I just found out that if there is currently some density added on the rows above or below this row, it does in fact spread! It does not even have to be straight below or above, just as long as the other density is on the neighbouring rows this works, they can even be on the opposite sides of the screen. Now, this makes me wonder how this is possible since the cells does not only have to be neighbouring, so they should basically not interact! (Well, at least not *immediately*). I will keep working on finding the solution now. At least now I know that it is possible for the fluid to spread vertically, kind of.
+
+### Update on solution
+Alright so after a lot of debugging (~6 hours!!) without success of finding what could be the problem I took Jos Stam's code and implemented it in another CPP file and added a rendering function that used my Mesh Image class and also a mouse handler. To no surprise it worked, mostly, just fine. All density would suddenly dissappear after less than a second but at least it spread properly.  
+So, I started replacing parts of my code with the code from Jos Stam until it would start working to try to see at least which of my functions that didn't work. I managed to replace almost the entirety of my code (or well I did rewrite his to my object oriented approach while doing this). Pretty much all that was left was a macro to convert a 2d coordinate to an 1d array index, which I originally got inspired by from Stam's paper.  
+After porting all of Stam's code it ***still*** suffered from the same issue my code did earlier. At this point I had no idea what the issue was, but after a while I noticed that my macro was slightly different from Stam's implementation.
+
+My implementation:
+```c++
+#define IX(x, y) (x + (N + 2) * y)
+```
+
+Stam's implementation:
+```c++
+#define IX(i,j) ((i)+(N + 2)*(j))
+```
+
+If we ignore the different variable names and spacing, we can see that the difference between these two defines is that Stam surrounded his variables with parenthesis. As it turns out, this is important! I have not used macros too much before since C++ is not the language I have most experience with so I was not aware of this.  
+This small detail was the cause of my program not working! After reading up on how macros work more closely I also can't understand how my program kind of worked before. At least I learned a good lesson, be careful when working with macros! So in total, this small mistake took me 8 hours to find.
