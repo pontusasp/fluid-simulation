@@ -29,25 +29,27 @@ void FluidSimulation::HandleMouse(sf::Window& window)
 	sf::Vector2f scale = getScale();
 	sf::Vector2f mousePos((mouse.x - position.x) / scale.x, (mouse.y - position.y) / scale.y);
 	sf::Vector2u quadCoord = meshImage.fromScreenSpace(mousePos);
-	if (quadCoord.x < 0 || quadCoord.x > size || quadCoord.y < 0 || quadCoord.y > size) return;
+	quadCoord.x++;
+	quadCoord.y++;
+	if (quadCoord.x < 1 || quadCoord.x > size || quadCoord.y < 1 || quadCoord.y > size) return;
 
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 	{
-		AddDensity(quadCoord.x, quadCoord.y, 100.f);
-		AddVelocity(quadCoord.x, quadCoord.y, 10.f, 10.f);
+		AddDensity(quadCoord.x, quadCoord.y, .25f);
+		AddVelocity(quadCoord.x, quadCoord.y, .2f, .6f);
 	}
 }
 
 void FluidSimulation::UpdateImage()
 {
 	int N = this->size;
-	for (unsigned int x = 0; x < size; x++)
-		for (unsigned int y = 0; y < size; y++)
+	for (unsigned int x = 1; x <= N; x++)
+		for (unsigned int y = 1; y <= N; y++)
 		{
-			float d = density[IX(x, y)];
+			float d = density[IX(x, y)] * 10;
 			if (d < 0) d = 0;
 			if (d > 1) d = 1;
-			meshImage.setColor(sf::Vector2u(x, y), sf::Color(255, 0, 0, (int)(255 * d)));
+			meshImage.setColor(sf::Vector2u(x-1, y-1), sf::Color(255, 0, 0, (int)(255 * d)));
 		}
 }
 
@@ -98,13 +100,14 @@ void FluidSimulation::SetBounds(Axis axis, std::vector<float>& vec, unsigned int
 
 void FluidSimulation::LinearSolve(Axis axis, std::vector<float>& vec, std::vector<float>& vec0, float a, float c, unsigned int iterations, unsigned int N)
 {
-	for (unsigned int k = 0; k < iterations; k++) {
-		for (unsigned int i = 1; i <= N; i++) {
-			for (unsigned int j = 1; j <= N; j++) {
+	for (unsigned int k = 0; k < iterations; k++)
+	{
+		for (unsigned int i = 1; i <= N; i++)
+			for (unsigned int j = 1; j <= N; j++)
+			{
 				vec[IX(i, j)] = (vec0[IX(i, j)] + a * (vec[IX(i - 1, j)] + vec[IX(i + 1, j)] +
 					vec[IX(i, j - 1)] + vec[IX(i, j + 1)])) / (1 + 4 * a);
 			}
-		}
 		SetBounds(axis, vec, N);
 	}
 }
