@@ -122,7 +122,7 @@ void FluidSimulation::Project(std::vector<float>& vx, std::vector<float>& vy, st
 void FluidSimulation::Advect(Axis axis, std::vector<float>& vec, std::vector<float>& vec0, std::vector<float>& vx, std::vector<float>& vy, float dt, unsigned int N)
 {
 	int i0, j0, i1, j1;
-	float x, y, s0, t0, s1, t1, dt0;
+	float x, y, frac_x_inv, frac_y_inv, frac_x, frac_y, dt0;
 	dt0 = dt * N;
 	for (unsigned int i = 1; i <= N; i++) {
 		for (unsigned int j = 1; j <= N; j++) {
@@ -139,14 +139,21 @@ void FluidSimulation::Advect(Axis axis, std::vector<float>& vec, std::vector<flo
 			j0 = (int)y;
 			j1 = j0 + 1;
 
-			s1 = x - i0; // extract decimal value from x
-			s0 = 1 - s1;
+			frac_x = x - i0; // extract decimal value from x
+			frac_x_inv = 1 - frac_x;
 
-			t1 = y - j0; // extract decimal value from y
-			t0 = 1 - t1;
+			frac_y = y - j0; // extract decimal value from y
+			frac_y_inv = 1 - frac_y;
 
-			vec[IX(i, j)] = s0 * (t0*vec0[IX(i0, j0)] + t1 * vec0[IX(i0, j1)]) +
-				s1 * (t0*vec0[IX(i1, j0)] + t1 * vec0[IX(i1, j1)]);
+			vec[IX(i, j)] =
+				frac_x_inv * (
+					frac_y_inv*vec0[IX(i0, j0)] +
+					frac_y * vec0[IX(i0, j1)]
+				) +
+				frac_x * (
+					frac_y_inv*vec0[IX(i1, j0)] +
+					frac_y * vec0[IX(i1, j1)]
+				);
 		}
 	}
 	SetBounds(axis, vec, N);
