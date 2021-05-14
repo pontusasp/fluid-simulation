@@ -1,6 +1,7 @@
 #include "FluidSimulation.h"
 
-#define IX(i, j) (i + (N + 2) * j)
+//#define IX(i, j) (i + (N + 2) * j) // DOES NOT WORK, KEEP IN MIND IN FUTURE
+#define IX(i, j) ((i) + (N + 2) * (j))
 
 FluidSimulation::FluidSimulation(unsigned int size, float diffusion, float viscosity)
 {
