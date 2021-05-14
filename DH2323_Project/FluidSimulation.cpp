@@ -69,7 +69,8 @@ void FluidSimulation::AddVelocity(unsigned int x, unsigned int y, float amountX,
 
 void FluidSimulation::Step(float dt, unsigned int iterations)
 {
-	Diffuse(Axis::xx, vx0, vx, visc, dt, iterations, this->size);
+	int N = this->size;
+	/*Diffuse(Axis::xx, vx0, vx, visc, dt, iterations, this->size);
 	Diffuse(Axis::yy, vy0, vy, visc, dt, iterations, this->size);
 
 	Project(vx0, vy0, vx, vy, iterations, this->size);
@@ -80,7 +81,9 @@ void FluidSimulation::Step(float dt, unsigned int iterations)
 	Project(vx, vy, vx0, vy0, iterations, this->size);
 
 	Diffuse(Axis::none, s, density, diff, dt, iterations, this->size);
-	Advect(Axis::none, density, s, vx, vy, dt, this->size);
+	Advect(Axis::none, density, s, vx, vy, dt, this->size);*/
+	vel_step(N, vx, vy, vx0, vy0, visc, dt, iterations);
+	dens_step(N, density, s, vx, vy, diff, dt, iterations);
 }
 
 void FluidSimulation::SetBounds(Axis axis, std::vector<float>& vec, unsigned int N)
@@ -98,7 +101,8 @@ void FluidSimulation::SetBounds(Axis axis, std::vector<float>& vec, unsigned int
 	vec[IX(N+1, N+1)] = 0.5f * (vec[IX(N, N+1)] + vec[IX(N+1, N)]);
 }
 
-void FluidSimulation::LinearSolve(Axis axis, std::vector<float>& vec, std::vector<float>& vec0, float a, float c, unsigned int iterations, unsigned int N)
+void FluidSimulation::LinearSolve(Axis axis, std::vector<float>& vec, std::vector<float>& vec0,
+	float a, float c, unsigned int iterations, unsigned int N)
 {
 	for (unsigned int k = 0; k < iterations; k++)
 	{
@@ -112,13 +116,15 @@ void FluidSimulation::LinearSolve(Axis axis, std::vector<float>& vec, std::vecto
 	}
 }
 
-void FluidSimulation::Diffuse(Axis axis, std::vector<float>& vec, std::vector<float>& vec0, float diff, float dt, unsigned int iterations, unsigned int N)
+void FluidSimulation::Diffuse(Axis axis, std::vector<float>& vec, std::vector<float>& vec0,
+	float diff, float dt, unsigned int iterations, unsigned int N)
 {
 	float a = dt * diff * N * N;
 	LinearSolve(axis, vec, vec0, a, 1 + 6 * a, iterations, N);
 }
 
-void FluidSimulation::Project(std::vector<float>& vx, std::vector<float>& vy, std::vector<float>& p, std::vector<float>& div, unsigned int iterations, unsigned int N)
+void FluidSimulation::Project(std::vector<float>& vx, std::vector<float>& vy, std::vector<float>& p,
+	std::vector<float>& div, unsigned int iterations, unsigned int N)
 {
 	float h;
 	h = 1.0f / N;
@@ -150,7 +156,8 @@ void FluidSimulation::Project(std::vector<float>& vx, std::vector<float>& vy, st
 	SetBounds(Axis::yy, vy, N);
 }
 
-void FluidSimulation::Advect(Axis axis, std::vector<float>& vec, std::vector<float>& vec0, std::vector<float>& vx, std::vector<float>& vy, float dt, unsigned int N)
+void FluidSimulation::Advect(Axis axis, std::vector<float>& vec, std::vector<float>& vec0,
+	std::vector<float>& vx, std::vector<float>& vy, float dt, unsigned int N)
 {
 	int i0, j0, i1, j1;
 	float x, y, frac_x_inv, frac_y_inv, frac_x, frac_y, dt0;
@@ -188,4 +195,37 @@ void FluidSimulation::Advect(Axis axis, std::vector<float>& vec, std::vector<flo
 		}
 	}
 	SetBounds(axis, vec, N);
+}
+
+void FluidSimulation::add_source(int N, std::vector<float>& x, std::vector<float>& s, float dt)
+{
+	int i, size = (N + 2)*(N + 2);
+	for (i = 0; i < size; i++) x[i] += dt * s[i];
+}
+
+void FluidSimulation::dens_step(int N, std::vector<float>& x, std::vector<float>& x0, std::vector<float>& u,
+	std::vector<float>& v, float diff, float dt, unsigned int iterations)
+{
+	add_source(N, x, x0, dt);
+	x0.swap(x);
+	Diffuse(Axis::none, x, x0, diff, dt, iterations, N);
+	x0.swap(x);
+	Advect(Axis::none, x, x0, u, v, dt, N);
+}
+
+void FluidSimulation::vel_step(int N, std::vector<float>& u, std::vector<float>& v, std::vector<float>& u0,
+	std::vector<float>& v0, float visc, float dt, unsigned int iterations)
+{
+	add_source(N, u, u0, dt);
+	add_source(N, v, v0, dt);
+	u0.swap(u);
+	Diffuse(Axis::xx, u, u0, visc, dt, iterations, N);
+	v0.swap(v);
+	Diffuse(Axis::yy, v, v0, visc, dt, iterations, N);
+	Project(u, v, u0, v0, iterations, N);
+	u0.swap(u);
+	v0.swap(v);
+	Advect(Axis::xx, u, u0, u0, v0, dt, N);
+	Advect(Axis::yy, v, v0, u0, v0, dt, N);
+	Project(u, v, u0, v0, iterations, N);
 }

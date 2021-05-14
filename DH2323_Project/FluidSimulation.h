@@ -44,5 +44,10 @@ private:
 	static void Diffuse(Axis axis, std::vector<float>& vec, std::vector<float>& vec0, float diff, float dt, unsigned int iterations, unsigned int N);
 	static void Project(std::vector<float>& vx, std::vector<float>& vy, std::vector<float>& p, std::vector<float>& div, unsigned int iterations, unsigned int N);
 	static void Advect(Axis axis, std::vector<float>& vec, std::vector<float>& vec0, std::vector<float>& vx, std::vector<float>& vy, float dt, unsigned int N);
+	
+	static void add_source(int N, std::vector<float>& x, std::vector<float>& s, float dt);
+	static void dens_step(int N, std::vector<float>& x, std::vector<float>& x0, std::vector<float>& u, std::vector<float>& v, float diff, float dt, unsigned int iterations);
+	static void vel_step(int N, std::vector<float>& u, std::vector<float>& v, std::vector<float>& u0, std::vector<float>& v0, float visc, float dt, unsigned int iterations);
+
 };
 
