@@ -32,7 +32,7 @@ int main()
 	Vector2u resolution(800, 800);
 	RenderWindow window(sf::VideoMode(resolution.x, resolution.y), "Fluid Simulation Project by Pontus Asp");
 
-	FluidSimulation sim(50, 0.f, 0.0002f);
+	FluidSimulation sim(200, 0.00001f, 0.0000002f);
 	sim.setScale(Vector2f(resolution.x, resolution.y));
 
 	while (window.isOpen())

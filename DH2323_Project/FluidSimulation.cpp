@@ -25,6 +25,7 @@ FluidSimulation::FluidSimulation(unsigned int size, float diffusion, float visco
 
 void FluidSimulation::HandleMouse(sf::Window& window)
 {
+	static sf::Vector2f lastMousePos;
 	auto mouse = sf::Mouse::getPosition(window);
 	sf::Vector2f position = getPosition();
 	sf::Vector2f scale = getScale();
@@ -37,8 +38,9 @@ void FluidSimulation::HandleMouse(sf::Window& window)
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 	{
 		AddDensity(quadCoord.x, quadCoord.y, .25f);
-		AddVelocity(quadCoord.x, quadCoord.y, .2f, .2f);
+		AddVelocity(quadCoord.x, quadCoord.y, (mousePos.x - lastMousePos.x) * 100, (mousePos.y - lastMousePos.y) * 100);
 	}
+	lastMousePos = mousePos;
 }
 
 void FluidSimulation::UpdateImage()
