@@ -12,6 +12,8 @@ public:
 	void AddDensity(unsigned int x, unsigned int y, float amount);
 	void AddVelocity(unsigned int x, unsigned int y, float amountX, float amountY);
 	void Step(float dt, unsigned int iterations);
+	void HandleMouse(sf::Window& window);
+	void UpdateImage();
 
 private:
 	MeshImage meshImage;

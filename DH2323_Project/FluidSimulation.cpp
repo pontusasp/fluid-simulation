@@ -22,6 +22,33 @@ FluidSimulation::FluidSimulation(unsigned int size, float diffusion, float visco
 	this->vy0.resize(N, 0.f);
 }
 
+void FluidSimulation::HandleMouse(sf::Window& window)
+{
+	auto mouse = sf::Mouse::getPosition(window);
+	sf::Vector2f position = getPosition();
+	sf::Vector2f scale = getScale();
+	sf::Vector2f mousePos((mouse.x - position.x) / scale.x, (mouse.y - position.y) / scale.y);
+	sf::Vector2u quadCoord = meshImage.fromScreenSpace(mousePos);
+	if (quadCoord.x < 0 || quadCoord.x > size || quadCoord.y < 0 || quadCoord.y > size) return;
+
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+	{
+		AddDensity(quadCoord.x, quadCoord.y, .1f);
+	}
+}
+
+void FluidSimulation::UpdateImage()
+{
+	for (int x = 0; x < size; x++)
+		for (int y = 0; y < size; y++)
+		{
+			float d = density[IX(x, y)];
+			if (d < 0) d = 0;
+			if (d > 1) d = 1;
+			meshImage.setColor(sf::Vector2u(x, y), sf::Color(255, 0, 0, (int)(255 * d)));
+		}
+}
+
 void FluidSimulation::AddDensity(unsigned int x, unsigned int y, float amount)
 {
 	this->density[IX(x, y)] += amount;

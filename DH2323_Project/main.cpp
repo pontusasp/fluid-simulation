@@ -42,7 +42,8 @@ int main()
 		{
 			handleEvents(window, event);
 		}
-
+		sim.HandleMouse(window);
+		sim.UpdateImage();
 		window.clear();
 		window.draw(sim);
 		window.display();
