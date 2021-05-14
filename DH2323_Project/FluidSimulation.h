@@ -32,5 +32,15 @@ private:
 		states.transform *= getTransform();
 		target.draw(meshImage, states);
 	}
+
+	enum Axis {
+		none, x, y
+	};
+
+	static void SetBounds(Axis axis, std::vector<float>& vec);
+	static void LinearSolve(Axis axis, std::vector<float>& vec, std::vector<float>& vec0, float a, float c, unsigned int iterations);
+	static void Diffuse(Axis axis, std::vector<float>& vec, std::vector<float>& vec0, float diff, float dt, unsigned int iterations);
+	static void Project(std::vector<float>& vx, std::vector<float>& vy, std::vector<float>& p, std::vector<float>& div, unsigned int iterations);
+	static void Advect(Axis axis, std::vector<float>& vec, std::vector<float>& vec0, std::vector<float>& vx, std::vector<float>& vy, float dt);
 };
 

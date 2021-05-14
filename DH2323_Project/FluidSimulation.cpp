@@ -33,3 +33,33 @@ void FluidSimulation::AddVelocity(unsigned int x, unsigned int y, float amountX,
 	this->vx[index] += amountX;
 	this->vy[index] += amountY;
 }
+
+void FluidSimulation::Step(float dt)
+{
+
+}
+
+void FluidSimulation::SetBounds(Axis axis, std::vector<float>& vec)
+{
+	
+}
+
+void FluidSimulation::LinearSolve(Axis axis, std::vector<float>& vec, std::vector<float>& vec0, float a, float c, unsigned int iterations)
+{
+
+}
+
+void FluidSimulation::Diffuse(Axis axis, std::vector<float>& vec, std::vector<float>& vec0, float diff, float dt, unsigned int iterations)
+{
+
+}
+
+void FluidSimulation::Project(std::vector<float>& vx, std::vector<float>& vy, std::vector<float>& p, std::vector<float>& div, unsigned int iterations)
+{
+
+}
+
+void FluidSimulation::Advect(Axis axis, std::vector<float>& vec, std::vector<float>& vec0, std::vector<float>& vx, std::vector<float>& vy, float dt)
+{
+
+}
