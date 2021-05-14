@@ -34,6 +34,7 @@ void FluidSimulation::HandleMouse(sf::Window& window)
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 	{
 		AddDensity(quadCoord.x, quadCoord.y, 100.f);
+		AddVelocity(quadCoord.x, quadCoord.y, 10.f, 10.f);
 	}
 }
 
@@ -69,12 +70,12 @@ void FluidSimulation::Step(float dt, unsigned int iterations)
 	Diffuse(Axis::x, vx0, vx, visc, dt, iterations, this->size);
 	Diffuse(Axis::y, vy0, vy, visc, dt, iterations, this->size);
 
-	Project(vx0, vy0, vx, vy, iterations);
+	Project(vx0, vy0, vx, vy, iterations, this->size);
 
 	Advect(Axis::x, vx, vx0, vx0, vy0, dt, this->size);
 	Advect(Axis::y, vy, vy0, vx0, vy0, dt, this->size);
 
-	Project(vx, vy, vx0, vy0, iterations);
+	Project(vx, vy, vx0, vy0, iterations, this->size);
 
 	Diffuse(Axis::none, s, density, diff, dt, iterations, this->size);
 	Advect(Axis::none, density, s, vx, vy, dt, this->size);
@@ -114,9 +115,36 @@ void FluidSimulation::Diffuse(Axis axis, std::vector<float>& vec, std::vector<fl
 	LinearSolve(axis, vec, vec0, a, 1 + 6 * a, iterations, N);
 }
 
-void FluidSimulation::Project(std::vector<float>& vx, std::vector<float>& vy, std::vector<float>& p, std::vector<float>& div, unsigned int iterations)
+void FluidSimulation::Project(std::vector<float>& vx, std::vector<float>& vy, std::vector<float>& p, std::vector<float>& div, unsigned int iterations, unsigned int N)
 {
-
+	float h;
+	h = 1.0f / N;
+	for (unsigned int i = 1; i <= N; i++) {
+		for (unsigned int j = 1; j <= N; j++) {
+			div[IX(i, j)] = -0.5f*h*(vx[IX(i + 1, j)] - vx[IX(i - 1, j)] +
+				vy[IX(i, j + 1)] - vy[IX(i, j - 1)]);
+			p[IX(i, j)] = 0;
+		}
+	}
+	SetBounds(Axis::none, div, N);
+	SetBounds(Axis::none, p, N);
+	for (unsigned int k = 0; k < iterations; k++) {
+		for (unsigned int i = 1; i <= N; i++) {
+			for (unsigned int j = 1; j <= N; j++) {
+				p[IX(i, j)] = (div[IX(i, j)] + p[IX(i - 1, j)] + p[IX(i + 1, j)] +
+					p[IX(i, j - 1)] + p[IX(i, j + 1)]) / 4;
+			}
+		}
+		SetBounds(Axis::none, p, N);
+	}
+	for (unsigned int i = 1; i <= N; i++) {
+		for (unsigned int j = 1; j <= N; j++) {
+			vx[IX(i, j)] -= 0.5f*(p[IX(i + 1, j)] - p[IX(i - 1, j)]) / h;
+			vy[IX(i, j)] -= 0.5f*(p[IX(i, j + 1)] - p[IX(i, j - 1)]) / h;
+		}
+	}
+	SetBounds(Axis::x, vx, N);
+	SetBounds(Axis::y, vy, N);
 }
 
 void FluidSimulation::Advect(Axis axis, std::vector<float>& vec, std::vector<float>& vec0, std::vector<float>& vx, std::vector<float>& vy, float dt, unsigned int N)
