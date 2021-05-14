@@ -11,7 +11,7 @@ public:
 
 	void AddDensity(unsigned int x, unsigned int y, float amount);
 	void AddVelocity(unsigned int x, unsigned int y, float amountX, float amountY);
-	void Step(float dt);
+	void Step(float dt, unsigned int iterations);
 
 private:
 	MeshImage meshImage;

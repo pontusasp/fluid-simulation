@@ -13,6 +13,7 @@ void handleKeyboard(RenderWindow& window, Event& event)
 		{
 		case sf::Keyboard::Escape:
 			window.close();
+			break;
 		default:
 			printf("Unbound key %d.\n", event.key.code);
 		}
@@ -31,7 +32,7 @@ int main()
 	Vector2u resolution(800, 800);
 	RenderWindow window(sf::VideoMode(resolution.x, resolution.y), "Fluid Simulation Project by Pontus Asp");
 
-	FluidSimulation sim(100, 100);
+	FluidSimulation sim(100, 10.f, 1.f);
 	sim.setScale(Vector2f(resolution.x, resolution.y));
 
 	while (window.isOpen())
