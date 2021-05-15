@@ -5,10 +5,13 @@
 
 void VectorFieldArrow::Init(sf::Vector2u coord, sf::Vector2f fieldSize, sf::Vector2u fieldRes)
 {
+	float sizeX = fieldSize.x / fieldRes.x;
+	float sizeY = fieldSize.y / fieldRes.y;
 
 	m_vertices.setPrimitiveType(sf::TriangleStrip);
 	m_vertices.resize(7);
 	
+	setOrigin(sf::Vector2f(sizeX/2, sizeY/2));
 	setPosition(coord, fieldSize, fieldRes);
 	setVector(sf::Vector2f(1, 0), fieldSize);
 }
@@ -24,13 +27,13 @@ void VectorFieldArrow::setPosition(sf::Vector2u& coord, sf::Vector2f& fieldSize,
 	m_vertices[4].position = sf::Vector2f((3.f/3) * sizeX, (1.5f/3) * sizeY);
 	m_vertices[5].position = sf::Vector2f((2.f/3) * sizeX, (.5f/3) * sizeY);
 	m_vertices[6].position = sf::Vector2f((2.f/3) * sizeX, (2.5f/3) * sizeY);
-	sf::Transformable::setPosition(sf::Vector2f(coord.x * sizeX, coord.y * sizeY));
+	sf::Transformable::setPosition(sf::Vector2f((coord.x + 0.5f) * sizeX, (coord.y + 0.5f) * sizeY));
 }
 
 void VectorFieldArrow::setVector(sf::Vector2f vector, sf::Vector2f fieldSize)
 {
 	float magnitude = utils::length(vector);
-	float magSqrt = sqrt(magnitude);
+	float magSqrt = sqrt(sqrt(magnitude));
 	int strength = (int) (255.f * magnitude);
 	if (strength < 0) strength = 0;
 	if (strength > 255) strength = 255;
@@ -38,7 +41,7 @@ void VectorFieldArrow::setVector(sf::Vector2f vector, sf::Vector2f fieldSize)
 	for (int i = 0; i < 7; i++)
 		m_vertices[i].color = color;
 	setRotation(atan2(vector.y, vector.x) * 180 / PI);
-	setScale(sf::Vector2f(magSqrt*2.5f + .5f, magSqrt*2.5f + .5f));
+	setScale(sf::Vector2f(magSqrt + .2f, magSqrt + .2f));
 }
 
 void VectorField::Init(float width, float height, unsigned int resolutionX, unsigned int resolutionY)

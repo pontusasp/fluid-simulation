@@ -3,10 +3,11 @@
 //#define IX(i, j) (i + (N + 2) * j) // DOES NOT WORK, KEEP IN MIND IN FUTURE
 #define IX(i, j) ((i) + (N + 2) * (j))
 
-FluidSimulation::FluidSimulation(unsigned int size, float diffusion, float viscosity)
+FluidSimulation::FluidSimulation(unsigned int size, float vectorFieldScale, float diffusion, float viscosity)
 {
 	this->meshImage.Init(1, 1, size, size);
-	this->vectorField.Init(1, 1, size, size);
+	this->vectorField.Init(1, 1, int(size * vectorFieldScale), int(size * vectorFieldScale));
+	this->vectorFieldScale = vectorFieldScale;
 
 	unsigned int N = (size + 2) * (size + 2);
 
@@ -36,10 +37,12 @@ void FluidSimulation::HandleMouse(sf::Window& window)
 	quadCoord.y++;
 	if (quadCoord.x < 1 || quadCoord.x > size || quadCoord.y < 1 || quadCoord.y > size) return;
 
-	if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) || sf::Mouse::isButtonPressed(sf::Mouse::Button::Right))
 	{
-		AddDensity(quadCoord.x, quadCoord.y, .25f);
-		AddVelocity(quadCoord.x, quadCoord.y, (mousePos.x - lastMousePos.x) * 100, (mousePos.y - lastMousePos.y) * 100);
+		int mod = 1;
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right)) mod = -1;
+		AddDensity(quadCoord.x, quadCoord.y, 5.25f * mod);
+		AddVelocity(quadCoord.x, quadCoord.y, (mousePos.x - lastMousePos.x) * 1000, (mousePos.y - lastMousePos.y) * 1000);
 	}
 	lastMousePos = mousePos;
 }
@@ -47,8 +50,8 @@ void FluidSimulation::HandleMouse(sf::Window& window)
 void FluidSimulation::UpdateImage()
 {
 	int N = this->size;
-	for (unsigned int x = 1; x <= N; x++)
-		for (unsigned int y = 1; y <= N; y++)
+	for (int x = 1, x0 = -1; x <= N; x++)
+		for (int y = 1, y0 = -1; y <= N; y++)
 		{
 			float d = density[IX(x, y)] * 10;
 			if (d < 0) d = 0;
@@ -62,7 +65,12 @@ void FluidSimulation::UpdateImage()
 
 			sf::Vector2u coord(x - 1, y - 1);
 			meshImage.setColor(coord, sf::Color(r, g, b));
-			vectorField.setVector(coord, sf::Vector2f(vx[IX(x, y)], vy[IX(x, y)]));
+			if (int((x - 1) * vectorFieldScale) > x0 || int((y - 1) * vectorFieldScale) > y0) {
+				x0 = int((x - 1) * vectorFieldScale);
+				y0 = int((y - 1) * vectorFieldScale);
+				sf::Vector2u coord(x0, y0);
+				vectorField.setVector(coord, sf::Vector2f(vx[IX(x, y)], vy[IX(x, y)]));
+			}
 		}
 }
 

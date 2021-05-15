@@ -8,7 +8,7 @@
 class FluidSimulation : public sf::Drawable, public sf::Transformable
 {
 public:
-	FluidSimulation(unsigned int size, float diffusion, float viscosity);
+	FluidSimulation(unsigned int size, float vectorFieldScale, float diffusion, float viscosity);
 
 	void AddDensity(unsigned int x, unsigned int y, float amount);
 	void AddVelocity(unsigned int x, unsigned int y, float amountX, float amountY);
@@ -19,6 +19,7 @@ public:
 private:
 	MeshImage meshImage;
 	VectorField vectorField;
+	float vectorFieldScale;
 
 	unsigned int size;
 	float diff, visc;
