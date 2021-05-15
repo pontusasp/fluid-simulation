@@ -6,6 +6,7 @@
 FluidSimulation::FluidSimulation(unsigned int size, float diffusion, float viscosity)
 {
 	this->meshImage.Init(1, 1, size, size);
+	this->vectorField.Init(1, 1, size, size);
 
 	unsigned int N = (size + 2) * (size + 2);
 
@@ -51,8 +52,17 @@ void FluidSimulation::UpdateImage()
 		{
 			float d = density[IX(x, y)] * 10;
 			if (d < 0) d = 0;
-			if (d > 1) d = 1;
-			meshImage.setColor(sf::Vector2u(x-1, y-1), sf::Color(255, 0, 0, (int)(255 * d)));
+
+			int r = 255 * d;
+			int g = 10 * d;
+			int b = 20 * d * d;
+			if (r > 255) r = 255;
+			if (g > 255) g = 255;
+			if (b > 255) b = 255;
+
+			sf::Vector2u coord(x - 1, y - 1);
+			meshImage.setColor(coord, sf::Color(r, g, b));
+			vectorField.setVector(coord, sf::Vector2f(vx[IX(x, y)], vy[IX(x, y)]));
 		}
 }
 

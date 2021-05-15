@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include "MeshImage.h"
 #include <vector>
+#include "VectorField.h"
 
 class FluidSimulation : public sf::Drawable, public sf::Transformable
 {
@@ -17,6 +18,7 @@ public:
 
 private:
 	MeshImage meshImage;
+	VectorField vectorField;
 
 	unsigned int size;
 	float diff, visc;
@@ -33,6 +35,7 @@ private:
 	{
 		states.transform *= getTransform();
 		target.draw(meshImage, states);
+		target.draw(vectorField, states);
 	}
 
 	enum Axis {

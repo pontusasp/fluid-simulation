@@ -3,6 +3,7 @@
 
 #include "MeshImage.h"
 #include "FluidSimulation.h"
+#include "VectorField.h"
 
 using namespace sf;
 
@@ -32,8 +33,14 @@ int main()
 	Vector2u resolution(800, 800);
 	RenderWindow window(sf::VideoMode(resolution.x, resolution.y), "Fluid Simulation Project by Pontus Asp");
 
-	FluidSimulation sim(200, 0.00001f, 0.0000002f);
+	FluidSimulation sim(50, 0.00001f, 0.0000002f);
 	sim.setScale(Vector2f(resolution.x, resolution.y));
+
+	VectorField field;
+	field.Init(800, 800, 5, 5);
+
+	Vector2u pos(2, 2);
+	field.setVector(pos, Vector2f(10, 10));
 
 	while (window.isOpen())
 	{
@@ -47,6 +54,7 @@ int main()
 		sim.UpdateImage();
 		window.clear();
 		window.draw(sim);
+		//window.draw(field);
 		window.display();
 	}
 

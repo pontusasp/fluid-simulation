@@ -135,11 +135,13 @@
     <ClCompile Include="FluidSimulation.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MeshImage.cpp" />
+    <ClCompile Include="VectorField.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FluidSimulation.h" />
     <ClInclude Include="MeshImage.h" />
     <ClInclude Include="utils.h" />
+    <ClInclude Include="VectorField.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
