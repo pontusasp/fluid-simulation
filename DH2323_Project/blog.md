@@ -62,3 +62,8 @@ Stam's implementation:
 
 If we ignore the different variable names and spacing, we can see that the difference between these two defines is that Stam surrounded his variables with parenthesis. As it turns out, this is important! I have not used macros too much before since C++ is not the language I have most experience with so I was not aware of this.  
 This small detail was the cause of my program not working! After reading up on how macros work more closely I also can't understand how my program kind of worked before. At least I learned a good lesson, be careful when working with macros! So in total, this small mistake took me 8 hours to find.
+
+
+# # 2021-05-15
+- Added VectorField class
+- Added simple additive coloring
