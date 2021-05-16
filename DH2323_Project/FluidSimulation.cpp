@@ -167,14 +167,51 @@ void FluidSimulation::SetBounds(Axis axis, std::vector<float>& vec, unsigned int
 				vec[index] = -vec[index + IX(0, -1)];
 			break;
 		case Axis::none:
+			vec[index] = 0;
+			int count = 0;
 			if (!bWall[index + IX(1, 0)])
-				vec[index] = vec[index + IX(1, 0)];
+			{
+				vec[index] += vec[index + IX(1, 0)];
+				count++;
+			}
 			if (!bWall[index + IX(-1, 0)])
-				vec[index] = vec[index + IX(-1, 0)];
+			{
+				vec[index] += vec[index + IX(-1, 0)];
+				count++;
+			}
 			if (!bWall[index + IX(0, 1)])
-				vec[index] = vec[index + IX(0, 1)];
+			{
+				vec[index] += vec[index + IX(0, 1)];
+				count++;
+			}
 			if (!bWall[index + IX(0, -1)])
-				vec[index] = vec[index + IX(0, -1)];
+			{
+				vec[index] += vec[index + IX(0, -1)];
+				count++;
+			}
+
+
+			if (!bWall[index + IX(1, 1)])
+			{
+				vec[index] += vec[index + IX(1, 1)];
+				count++;
+			}
+			if (!bWall[index + IX(-1, 1)])
+			{
+				vec[index] += vec[index + IX(-1, 1)];
+				count++;
+			}
+			if (!bWall[index + IX(1, -1)])
+			{
+				vec[index] += vec[index + IX(1, -1)];
+				count++;
+			}
+			if (!bWall[index + IX(-1, -1)])
+			{
+				vec[index] += vec[index + IX(-1, -1)];
+				count++;
+			}
+			if (count > 0) vec[index] /= count;
 		}
 		
 	}
