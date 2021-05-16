@@ -30,6 +30,30 @@ FluidSimulation::FluidSimulation(unsigned int size, float vectorFieldScale, floa
 
 void FluidSimulation::HandleMouse(sf::Window& window)
 {
+
+	if (iWall.size() > 0)
+	{
+		if (shouldClearWalls)
+		{
+			std::fill(bWall.begin(), bWall.end(), false);
+			iWall.clear();
+		}
+	}
+	else if (!shouldClearWalls) shouldClearWalls = true;
+
+	if (shouldReset)
+	{
+		std::fill(density0.begin(), density0.end(), 0.f);
+		std::fill(density.begin(), density.end(), 0.f);
+
+		std::fill(vx.begin(), vx.end(), 0.f);
+		std::fill(vy.begin(), vy.end(), 0.f);
+
+		std::fill(vx0.begin(), vx0.end(), 0.f);
+		std::fill(vy0.begin(), vy0.end(), 0.f);
+		shouldReset = false;
+	}
+
 	int N = this->size;
 	static sf::Vector2f lastMousePos;
 	auto mouse = sf::Mouse::getPosition(window);
@@ -70,6 +94,7 @@ void FluidSimulation::HandleMouse(sf::Window& window)
 			bWall[IX(quadCoord.x+1, quadCoord.y+1)] = true;
 			iWall.push_back(IX(quadCoord.x+1, quadCoord.y+1));
 		}
+		shouldClearWalls = false;
 	}
 	lastMousePos = mousePos;
 }
@@ -96,11 +121,13 @@ void FluidSimulation::UpdateImage()
 			}
 			else meshImage.setColor(coord, sf::Color::Green);
 
-			if (int(x * vectorFieldScale - vectorFieldScale/2) > x0 || int(y * vectorFieldScale - vectorFieldScale/2) > y0) {
-				x0 = int(coord.x * vectorFieldScale - vectorFieldScale / 2);
-				y0 = int(coord.y * vectorFieldScale - vectorFieldScale / 2);
-				sf::Vector2u vecCoord(x0, y0);
-				vectorField.setVector(vecCoord, sf::Vector2f(vx[IX(x, y)], vy[IX(x, y)]));
+			if (vectorFieldActive) {
+				if (int(x * vectorFieldScale - vectorFieldScale / 2) > x0 || int(y * vectorFieldScale - vectorFieldScale / 2) > y0) {
+					x0 = int(coord.x * vectorFieldScale - vectorFieldScale / 2);
+					y0 = int(coord.y * vectorFieldScale - vectorFieldScale / 2);
+					sf::Vector2u vecCoord(x0, y0);
+					vectorField.setVector(vecCoord, sf::Vector2f(vx[IX(x, y)], vy[IX(x, y)]));
+				}
 			}
 		}
 }

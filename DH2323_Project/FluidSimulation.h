@@ -16,6 +16,10 @@ public:
 	void HandleMouse(sf::Window& window);
 	void UpdateImage();
 
+	bool vectorFieldActive = false;
+	bool shouldClearWalls = true;
+	bool shouldReset = false;
+
 private:
 	MeshImage meshImage;
 	VectorField vectorField;
@@ -39,7 +43,8 @@ private:
 	{
 		states.transform *= getTransform();
 		target.draw(meshImage, states);
-		target.draw(vectorField, states);
+		if (vectorFieldActive)
+			target.draw(vectorField, states);
 	}
 
 	enum Axis {
