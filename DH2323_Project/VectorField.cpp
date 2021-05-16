@@ -13,7 +13,7 @@ void VectorFieldArrow::Init(sf::Vector2u coord, sf::Vector2f fieldSize, sf::Vect
 	
 	setOrigin(sf::Vector2f(sizeX/2, sizeY/2));
 	setPosition(coord, fieldSize, fieldRes);
-	setVector(sf::Vector2f(1, 0), fieldSize);
+	setVector(sf::Vector2f(0, 0), fieldSize);
 }
 
 void VectorFieldArrow::setPosition(sf::Vector2u& coord, sf::Vector2f& fieldSize, sf::Vector2u& fieldRes)

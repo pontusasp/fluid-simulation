@@ -96,11 +96,11 @@ void FluidSimulation::UpdateImage()
 			}
 			else meshImage.setColor(coord, sf::Color::Green);
 
-			if (int((x - 1) * vectorFieldScale) > x0 || int((y - 1) * vectorFieldScale) > y0) {
-				x0 = int((x - 1) * vectorFieldScale);
-				y0 = int((y - 1) * vectorFieldScale);
-				sf::Vector2u coord(x0, y0);
-				vectorField.setVector(coord, sf::Vector2f(vx[IX(x, y)], vy[IX(x, y)]));
+			if (int(x * vectorFieldScale - vectorFieldScale/2) > x0 || int(y * vectorFieldScale - vectorFieldScale/2) > y0) {
+				x0 = int(coord.x * vectorFieldScale - vectorFieldScale / 2);
+				y0 = int(coord.y * vectorFieldScale - vectorFieldScale / 2);
+				sf::Vector2u vecCoord(x0, y0);
+				vectorField.setVector(vecCoord, sf::Vector2f(vx[IX(x, y)], vy[IX(x, y)]));
 			}
 		}
 }
