@@ -44,8 +44,8 @@ void FluidSimulation::HandleMouse(sf::Window& window)
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)
 		&& !bWall[IX(quadCoord.x, quadCoord.y)])
 	{
-		AddDensity(quadCoord.x, quadCoord.y, 5.25f);
-		AddVelocity(quadCoord.x, quadCoord.y, (mousePos.x - lastMousePos.x) * 1000, (mousePos.y - lastMousePos.y) * 1000);
+		AddDensity(quadCoord.x, quadCoord.y, .25f);
+		AddVelocity(quadCoord.x, quadCoord.y, (mousePos.x - lastMousePos.x) * 100 * this->size / 200, (mousePos.y - lastMousePos.y) * 100 * this->size / 200);
 	}
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right)
 		&& !(quadCoord.x > size-1 || quadCoord.y > size-1))
