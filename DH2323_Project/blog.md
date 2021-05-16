@@ -1,4 +1,4 @@
-# Pontus Asp's blog for DH2323 Project
+# Pontus Asp's development blog for DH2323 Project
 In this blog I will take notes of my progress and thought when working on the DH2323 Project. In this project I am going to program a fluid simulation based on the navier stokes equation.
 
 # # 2021-05-13
@@ -65,5 +65,38 @@ This small detail was the cause of my program not working! After reading up on h
 
 
 # # 2021-05-15
-- Added VectorField class
-- Added simple additive coloring
+- Added VectorField class.
+- Added simple additive coloring.
+
+## VectorField class
+With viewing density working I wanted to make it possible to see our other data as well - velocity. So I felt like a nice way to visualize this would be to create a field of vector arrows that would display the direction and magnitude of the velocity vectors. So I created a class that I called VectorField and another class that I called VectorFieldArrow that will keep the information about each arrow.
+
+At this point I just had to figure out how I would draw the arrows, and since I wanted to keep things lightweight I decided to try to draw the arrows with vertices. I plotted out on a paper how to create the arrow using triangles. SFML have some restrictions on how you can define meshes from verticies, namely if I for instance would want to create a shape out of triangles and one vertex is shared with multiple triangles I will have to redefine this vertex instead of using it multiple times. SFML does however reuse two vertices from the previous triangle, so to make a square still only requires 4 vertices in total, but for a more complex shape you might have to redefine vertices. I created my arrows in a way that did not require extra vertices, but the last face to make up the side of the arrow does overlap with two other triangle faces. But since my arrows will have a solid color I do not think this will be a problem. To display the magnitude of the arrows I simply scaled them up and interpolate the color towards bright yellow (from the standard dark blue).
+
+After I created the shape and was happy with how it looked I just had to add some functions to properly position each arrow. I used some built in functionality of SFML to translate the arrows into place and rotate them, which corresponded pretty closely to how the translations and rotations work in OpenGL.
+
+With all this done, I updated my FluidSimulation class to include the vector field and update each arrow with the corresponding velocity vector. However when I increased the resolution of the simulation (4 pixels per simulated block) I realised that the arrows can't really be drawn at that scale, so I also added a scaling factor in the FluidSimulation class so that if I for instance give it a scale of 0.5 and the simulation is 400 by 400 units big, then the vector field is going to have 200*200 arrows.
+
+## Additive coloring
+Because the simulation can fill up with color pretty fast I wanted to give some additional detail when there the density has reached the maximum color at a point (at this point in time I draw the density in red, so we only have 256 levels of detail). I did this by simply clamping the color to go to a maximum of 255, but I also added a small value for green (10 units per 255 of red) and blue (20 units per 255 units of red). So now when the density increases past the limit of red it can still keep going until white, which I also think looks nicer. I am also thinking about being able to add other densities that will have other colors, if I do; I will have to change this coloring function to be additive with the current color of the quad as well, since it right now just overwrites it.
+
+
+# # 2021-05-16
+- Started working on particles but scrapped it.
+- Added static objects.
+
+## Particles
+While developing this simulation I had in my mind that it would be really nice to have some particles that could fly around using the velocity of the simulation acting as the velocity for the particles. I still want to add this but I realized that to make this effect look better I wanted to be able to have something they could flow around. Before starting this project I wanted to add static objects that the fluid could interact with. So I really wanted to have this in place before I would start implementing particles in the simulation. So I just scrapped the code I had written for it so far.
+
+## Static objects
+My first thought about how I would add static objects was that I would make them behave like the walls of the scene - they should counteract all forces applied to them. So what I would then have to do is have some way of keeping track of which cells are going to have this behaviour and which does not. Since the walls work by counteracting forces applied to them they only work in one direction of each axis at a time, so an object that would be a 1 layer thin cell would not work based on this since it can't counteract both sides of it. So I realized the smallest possible object would have to consist of 2x2 cells if I would use this method.
+
+After doing some thinking I implemented two arrays, one for lookup which I call bWall and one to keep track of which cells are "walls", which I call iWall. The bWall array is an array of booleans for each cell, so that checking if a cell is a wall or a normal cell is easy. The other array iWall (or well, std::vector, but I will refer to it as array) is an array of indices (ints) in which I just append indices of the walls that act like cells into. With this implementation it is also easy to see if an index already exists in the iWall since you can now check the value of the corresponding index in bWall.
+
+With this implemented I changed my drawing function to check if the current cell is a wall or not and change what it is rendering depending on this. I also changed my HandleMouse function to add the ability to right click to place the static objects, so now you can just draw out a wall and the fluid will later interact with it. I also added bounds to where you can place the walls since they are placed as a 2x2 object so they do not go outside the simulation when placing at the right or bottom edge.
+
+After this I started working on actually making the walls interact with the simulation, I did this by modifying the function that's adding the surrounding walls already by also going through the iWall array and setting the force for these cells. The implementation for this was pretty similar to how the current walls are implemented. The fact that I also now have a guaranteed neighbouring cell in both the x and y axis makes this even more similar, since those can just be ignored when calculating the forces. So if we are setting the forces in the x direction we will first check if the cell to it's right is a wall, and if it's not then we will check the left. If we find a cell in either of these directions then we will counteract it on that axis. This implementation does have a flaw though. It does not take the velocity of the diagonal cells into account and therefore will not perfectly counteract all forces towards it. However it does do a pretty good job, and the issue is barely noticeable when the static objects are more than 3 cells thick.
+
+However the walls also needs a way to stop fluid from diffusing through them. My implementation on this is also not perfect, but still looks good visually. It also also has the issue of not stopping some of the density from leaking out when the static objects are less than 3 cells thick. I implemented this by making each cell take the average value of it's surrounding cells and dividing by the amount of cells it took the density value from (it does not take other walls into account).
+
+So with this implemented, I now have pretty good static objects that can be placed in the simulation while it is running!
