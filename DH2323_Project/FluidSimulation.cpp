@@ -9,24 +9,28 @@ FluidSimulation::FluidSimulation(unsigned int size, float vectorFieldScale, floa
 	this->vectorField.Init(1, 1, int(size * vectorFieldScale), int(size * vectorFieldScale));
 	this->vectorFieldScale = vectorFieldScale;
 
-	unsigned int N = (size + 2) * (size + 2);
+	unsigned int N = size;
+	unsigned int NN = (N + 2) * (N + 2);
 
 	this->size = size;
 	this->diff = diffusion;
 	this->visc = viscosity;
 
-	this->density0.resize(N, 0.f);
-	this->density.resize(N, 0.f);
+	this->density0.resize(NN, 0.f);
+	this->density.resize(NN, 0.f);
 
-	this->vx.resize(N, 0.f);
-	this->vy.resize(N, 0.f);
+	this->vx.resize(NN, 0.f);
+	this->vy.resize(NN, 0.f);
 
-	this->vx0.resize(N, 0.f);
-	this->vy0.resize(N, 0.f);
+	this->vx0.resize(NN, 0.f);
+	this->vy0.resize(NN, 0.f);
+
+	this->bWall.resize(NN, false);
 }
 
 void FluidSimulation::HandleMouse(sf::Window& window)
 {
+	int N = this->size;
 	static sf::Vector2f lastMousePos;
 	auto mouse = sf::Mouse::getPosition(window);
 	sf::Vector2f position = getPosition();
@@ -37,12 +41,35 @@ void FluidSimulation::HandleMouse(sf::Window& window)
 	quadCoord.y++;
 	if (quadCoord.x < 1 || quadCoord.x > size || quadCoord.y < 1 || quadCoord.y > size) return;
 
-	if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) || sf::Mouse::isButtonPressed(sf::Mouse::Button::Right))
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)
+		&& !bWall[IX(quadCoord.x, quadCoord.y)])
 	{
-		int mod = 1;
-		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right)) mod = -1;
-		AddDensity(quadCoord.x, quadCoord.y, 5.25f * mod);
+		AddDensity(quadCoord.x, quadCoord.y, 5.25f);
 		AddVelocity(quadCoord.x, quadCoord.y, (mousePos.x - lastMousePos.x) * 1000, (mousePos.y - lastMousePos.y) * 1000);
+	}
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right)
+		&& !(quadCoord.x > size-1 || quadCoord.y > size-1))
+	{
+		if (!bWall[IX(quadCoord.x, quadCoord.y)])
+		{
+			bWall[IX(quadCoord.x, quadCoord.y)] = true;
+			iWall.push_back(IX(quadCoord.x, quadCoord.y));
+		}
+		if (!bWall[IX(quadCoord.x+1, quadCoord.y)])
+		{
+			bWall[IX(quadCoord.x+1, quadCoord.y)] = true;
+			iWall.push_back(IX(quadCoord.x+1, quadCoord.y));
+		}
+		if (!bWall[IX(quadCoord.x, quadCoord.y+1)])
+		{
+			bWall[IX(quadCoord.x, quadCoord.y+1)] = true;
+			iWall.push_back(IX(quadCoord.x, quadCoord.y+1));
+		}
+		if (!bWall[IX(quadCoord.x+1, quadCoord.y+1)])
+		{
+			bWall[IX(quadCoord.x+1, quadCoord.y+1)] = true;
+			iWall.push_back(IX(quadCoord.x+1, quadCoord.y+1));
+		}
 	}
 	lastMousePos = mousePos;
 }
@@ -53,18 +80,22 @@ void FluidSimulation::UpdateImage()
 	for (int x = 1, x0 = -1; x <= N; x++)
 		for (int y = 1, y0 = -1; y <= N; y++)
 		{
-			float d = density[IX(x, y)] * 10;
-			if (d < 0) d = 0;
-
-			int r = 255 * d;
-			int g = 10 * d;
-			int b = 20 * d * d;
-			if (r > 255) r = 255;
-			if (g > 255) g = 255;
-			if (b > 255) b = 255;
-
 			sf::Vector2u coord(x - 1, y - 1);
-			meshImage.setColor(coord, sf::Color(r, g, b));
+			if (!bWall[IX(x, y)])
+			{
+				float d = density[IX(x, y)] * 10;
+				if (d < 0) d = 0;
+
+				int r = 255 * d;
+				int g = 10 * d;
+				int b = 20 * d * d;
+				if (r > 255) r = 255;
+				if (g > 255) g = 255;
+				if (b > 255) b = 255;
+				meshImage.setColor(coord, sf::Color(r, g, b));
+			}
+			else meshImage.setColor(coord, sf::Color::Green);
+
 			if (int((x - 1) * vectorFieldScale) > x0 || int((y - 1) * vectorFieldScale) > y0) {
 				x0 = int((x - 1) * vectorFieldScale);
 				y0 = int((y - 1) * vectorFieldScale);
@@ -117,6 +148,36 @@ void FluidSimulation::SetBounds(Axis axis, std::vector<float>& vec, unsigned int
 	vec[IX(0, N+1)] = 0.5f * (vec[IX(1, N+1)] + vec[IX(0, N)]);
 	vec[IX(N+1, 0)] = 0.5f * (vec[IX(N, 0)] + vec[IX(N+1, 1)]);
 	vec[IX(N+1, N+1)] = 0.5f * (vec[IX(N, N+1)] + vec[IX(N+1, N)]);
+
+	for (int i = 0; i < iWall.size(); i++)
+	{
+		int index = iWall[i];
+		switch (axis)
+		{
+		case Axis::xx:
+			if (!bWall[index + IX(1, 0)])
+				vec[index] = -vec[index + IX(1, 0)];
+			else
+				vec[index] = -vec[index + IX(-1, 0)];
+			break;
+		case Axis::yy:
+			if (!bWall[index + IX(0, 1)])
+				vec[index] = -vec[index + IX(0, 1)];
+			else
+				vec[index] = -vec[index + IX(0, -1)];
+			break;
+		case Axis::none:
+			if (!bWall[index + IX(1, 0)])
+				vec[index] = vec[index + IX(1, 0)];
+			if (!bWall[index + IX(-1, 0)])
+				vec[index] = vec[index + IX(-1, 0)];
+			if (!bWall[index + IX(0, 1)])
+				vec[index] = vec[index + IX(0, 1)];
+			if (!bWall[index + IX(0, -1)])
+				vec[index] = vec[index + IX(0, -1)];
+		}
+		
+	}
 }
 
 void FluidSimulation::LinearSolve(Axis axis, std::vector<float>& vec, std::vector<float>& vec0, float a, float c, unsigned int iterations, unsigned int N)

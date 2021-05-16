@@ -61,7 +61,9 @@ void VectorField::Init(float width, float height, unsigned int resolutionX, unsi
 void VectorField::setVector(sf::Vector2u& coord, sf::Vector2f vector)
 {
 	int N = resolutionX;
-	arrows[IX(coord.x, coord.y)].setVector(vector, fieldSize);
+	int index = IX(coord.x, coord.y);
+	if (index > 0 && index < arrows.size())
+		arrows[index].setVector(vector, fieldSize);
 }
 
 sf::Vector2u VectorField::fromScreenSpace(sf::Vector2f coord)
