@@ -100,3 +100,11 @@ After this I started working on actually making the walls interact with the simu
 However the walls also needs a way to stop fluid from diffusing through them. My implementation on this is also not perfect, but still looks good visually. It also also has the issue of not stopping some of the density from leaking out when the static objects are less than 3 cells thick. I implemented this by making each cell take the average value of it's surrounding cells and dividing by the amount of cells it took the density value from (it does not take other walls into account).
 
 So with this implemented, I now have pretty good static objects that can be placed in the simulation while it is running!
+
+
+# # 2021-05-17
+- Added buttons
+
+## Buttons
+After adding the possibility to add in static objects I also felt like it would be nice to erase them somehow. But I felt like it could become complicated to make sure that there will never be too thin static objects left so I instead felt like adding a button to remove all walls would be nice. So I created a button class and made some space at the bottom of the screen and added it there. I also added three other buttons, Pause, Toggle Vector Field and Reset. The reset button is also very handy since you needed to restart the application before if you wanted to restart the scene.
+
