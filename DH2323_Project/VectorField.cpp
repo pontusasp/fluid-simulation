@@ -34,7 +34,7 @@ void VectorFieldArrow::setVector(sf::Vector2f vector, sf::Vector2f fieldSize)
 {
 	float magnitude = utils::length(vector);
 	float magSqrt = sqrt(sqrt(magnitude));
-	int strength = (int) (255.f * magnitude);
+	int strength = (int) (255.f * magnitude * 25);
 	if (strength < 0) strength = 0;
 	if (strength > 255) strength = 255;
 	auto color = sf::Color(strength, strength, 255/3 - strength/3);

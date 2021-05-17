@@ -37,7 +37,7 @@ int main()
 	Vector2u resolution(simRes.x, simRes.y + toolRes.y);
 	RenderWindow window(sf::VideoMode(resolution.x, resolution.y), "Fluid Simulation Project by Pontus Asp", sf::Style::Titlebar | sf::Style::Close);
 
-	FluidSimulation sim(200, .25, 0.000001f, 0.000002f);
+	FluidSimulation sim(200, .125, 0.00000001f, 0.00000002f);
 	sim.setScale(Vector2f(simRes.x, simRes.y));
 
 	sf::Font font;
