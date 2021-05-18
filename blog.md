@@ -1,5 +1,5 @@
 # Pontus Asp's development blog for DH2323 Project
-In this blog I will take notes of my progress and thought when working on the DH2323 Project. In this project I am going to program a fluid simulation based on the navier stokes equation.
+In this blog I will take notes of my progress and thoughts when working on the DH2323 Project. In this project I am going to program a fluid simulation based on the navier stokes equation.
 
 # # 2021-05-13
 - Created project for project.
