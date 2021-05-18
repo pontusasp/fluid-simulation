@@ -2,6 +2,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{multicol}
 \usepackage{geometry}
+\usepackage{bm}
 %\usepackage{showframe} %This line can be used to clearly show the new margins
 
 \newgeometry{vmargin={15mm}, hmargin={15mm,15mm}}   % set the margins
@@ -20,7 +21,17 @@ KTH Royal Institute of Technology\\%
 
 \section{Abstract}
 \section{Introduction}
+In the field of Computational Fluid Dynamics (CFD), incompressible fluids are simulated by a computer that will solve approximations to a set of differential equations which are called the Navier-Stokes Equations. In this project I simulated fluids with the technique of finite elements. But there are also other types of techniques, e.g. finite difference, finite volume and spectral methods. Some use cases for the Navier-Stokes equations could be to for instance model weather, water flow, or air flow around objects etc. In computer simulated models, iterative solvers for approximating the differential equations are often used. In this project the Gauss-Seidel method will be used to iteratively approximate the systems of equations.\\
+The Navier-Stokes Equations:
+\[
+    \nabla \cdot \bm{u}=0,~~~~~~
+    \rho\frac{d\bm{u}}{dt}=-\nabla p+\mu\nabla^2\bm{u}+\rho \bm{F}
+\]
+Where $u$ is the velocity vector field, $\rho$ is the density, $-\nabla p$ is the pressure, $\mu \nabla^2u$ is the viscosity and $F$ is external forces, e.g. gravity. The first equation $\nabla \cdot u=0$ is essentially describing that the mass is conserved within the fluid by making sure that the divergence of the velocity vector field is $0$. If we somewhere would have positive divergence then that would mean that the mass would be increasing at that point, and a negative divergence would mean that mass would disappear at that point. Since mass can't simply disappear or appear out of nothing this has to be $0$. The second equation corresponds closely with Newton's Second Law of Motion and describes the movement of Newtonian fluids.
+
 \section{Related Work}
+When working on this project there are two main papers that I have used as inspiration when coding the simulation, one which talked about the material on an easier to understand, but less deep level, and one which went more into details but not far enough so that it was very hard to follow. The first source is Jos Stam's paper Real-Time Fluid Dynamics for Games. In this paper Stam both talks about some of the math behind implementing a real-time simulation of fluids and also goes through code for an actual implementation of a fluid simulation. The second source is Mike Ash's paper Fluid Simulation for Dummies. This paper is similar to Stam's paper in some ways, and that is because the code here is based on Stam's code. The biggest difference in this paper compared to Stam's paper is that it is easier to read, as that was actually a primary goal for Ash when writing it. Using the combination of these two papers I had the foundation to create a basic fluid simulation.
+
 \section{Implementation and Results}
 \section{Future Work}
 
