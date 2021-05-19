@@ -108,3 +108,7 @@ So with this implemented, I now have pretty good static objects that can be plac
 ## Buttons
 After adding the possibility to add in static objects I also felt like it would be nice to erase them somehow. But I felt like it could become complicated to make sure that there will never be too thin static objects left so I instead felt like adding a button to remove all walls would be nice. So I created a button class and made some space at the bottom of the screen and added it there. I also added three other buttons, Pause, Toggle Vector Field and Reset. The reset button is also very handy since you needed to restart the application before if you wanted to restart the scene.
 
+# # 2021-05-19
+Put up a showcase video of the project so far on YouTube!  
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/dIdETOWr6CM/0.jpg)](https://www.youtube.com/watch?v=dIdETOWr6CM)  
+Click the image to go to the video.
