@@ -1,6 +1,8 @@
 # Pontus Asp's development blog for DH2323 Project
 In this blog I will take notes of my progress and thoughts when working on the DH2323 Project. In this project I am going to program a fluid simulation based on the navier stokes equation.
 
+[![Image Preview](https://img.youtube.com/vi/dIdETOWr6CM/0.jpg)](https://www.youtube.com/watch?v=dIdETOWr6CM)  
+
 # # 2021-05-13
 - Created project for project.
 - Decided to use SFML as my graphics library.
@@ -110,5 +112,5 @@ After adding the possibility to add in static objects I also felt like it would 
 
 # # 2021-05-19
 Put up a showcase video of the project so far on YouTube!  
-[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/dIdETOWr6CM/0.jpg)](https://www.youtube.com/watch?v=dIdETOWr6CM)  
-Click the image to go to the video.
+[![Image Preview](https://img.youtube.com/vi/dIdETOWr6CM/0.jpg)](https://www.youtube.com/watch?v=dIdETOWr6CM)  
+Click the image or [here](https://www.youtube.com/watch?v=dIdETOWr6CM) to go to the video.
