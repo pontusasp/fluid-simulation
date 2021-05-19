@@ -23,7 +23,7 @@ I have previosuly searched around for some resources that could be of use in the
 Real-Time Fluid Dynamics for Games by Jos Stam
 URL: https://www.dgp.toronto.edu/public_user/stam/reality/Research/pdf/GDC03.pdf
 
-However, this paper did not go deep at all about how the mathematics works so after finishing it I also read.
+However, since most of this stuff is new to me I was still a bit confused and also found this paper talked about these concepts on a higher level so it was easier to understand.
 
 Fluid Simulation for Dummies by Mike Ask
 URL: https://www.mikeash.com/pyblog/fluid-simulation-for-dummies.html
@@ -31,7 +31,7 @@ URL: https://www.mikeash.com/pyblog/fluid-simulation-for-dummies.html
 This paper was based on the previous paper but was extended to 3D (I however will stick to 2D). It was also a bit easier to read and the code was explaied more in detail and had easier to read naming conventions so it was easier to understand the code, so it was a good addition to the other paper.
 
 ### Extra: Fun link
-While checking out different link on google I found this Fluid Simulation implementation which looks really nice!
+While checking out different links on google I found this Fluid Simulation implementation which looks really nice!
 https://paveldogreat.github.io/WebGL-Fluid-Simulation/
 
 
