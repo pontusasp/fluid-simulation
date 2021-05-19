@@ -37,6 +37,8 @@ int main()
 	Vector2u resolution(simRes.x, simRes.y + toolRes.y);
 	RenderWindow window(sf::VideoMode(resolution.x, resolution.y), "Fluid Simulation Project by Pontus Asp", sf::Style::Titlebar | sf::Style::Close);
 
+	Color bgColor(30, 30, 32);
+
 	FluidSimulation sim(200, .125, 0.00000001f, 0.00000002f);
 	sim.setScale(Vector2f(simRes.x, simRes.y));
 
@@ -49,19 +51,33 @@ int main()
 
 	int buttons = 0;
 	bool paused = false;
-	float marginLeft = 20;
+	float marginLeft = 12.5f;
+	float bWidth = 145;
 
-	ToggleButton vectorFieldToggle(&sim.vectorFieldActive, "vector field", Vector2f(marginLeft + 195 * buttons++, 815), Vector2f(175, 20),
-		Color(0, 150, 0), Color(180, 0, 0), Color::White, Color::White, font);
+	RectangleShape uiBorder;
+	float borderThickness = 2.f;
+	uiBorder.setSize(Vector2f(toolRes.x - borderThickness * 2, toolRes.y - borderThickness * 2));
+	uiBorder.setOutlineColor(Color(100, 100, 100));
+	uiBorder.setFillColor(bgColor);
+	uiBorder.setOutlineThickness(borderThickness);
+	uiBorder.setPosition(borderThickness, simRes.y + borderThickness);
 
-	ToggleButton simulationPause(&paused, "pause", Vector2f(marginLeft + 195 * buttons++, 815), Vector2f(175, 20),
+
+	ToggleButton vectorFieldToggle(&sim.vectorFieldActive, "vector field", Vector2f(marginLeft + (marginLeft + bWidth) * buttons++, 815), Vector2f(bWidth, 20),
+		Color(0, 150, 0), Color(40, 40, 40), Color::White, Color::White, font);
+
+	ToggleButton clearWallsToggle(&sim.shouldClearWalls, "clear walls", Vector2f(marginLeft + (marginLeft + bWidth) * buttons++, 815), Vector2f(bWidth, 20),
+		Color(40, 40, 40), Color(150, 0, 160), Color::White, Color::White, font);
+
+	ToggleButton resetToggle(&sim.shouldReset, "reset", Vector2f(marginLeft + (marginLeft + bWidth) * buttons++, 815), Vector2f(bWidth, 20),
+		Color(40, 40, 40), Color(180, 0, 0), Color::White, Color::White, font);
+
+	ToggleButton simulationPause(&paused, "pause", Vector2f(marginLeft + (marginLeft + bWidth) * buttons++, 815), Vector2f(bWidth, 20),
 		Color(0, 0, 200), Color(40, 40, 40), Color::White, Color::White, font);
 
-	ToggleButton clearWallsToggle(&sim.shouldClearWalls, "clear walls", Vector2f(marginLeft + 195 * buttons++, 815), Vector2f(175, 20),
-		Color(40, 40, 40), Color(0, 150, 0), Color::White, Color::White, font);
-
-	ToggleButton resetToggle(&sim.shouldReset, "reset", Vector2f(marginLeft + 195 * buttons++, 815), Vector2f(175, 20),
-		Color(40, 40, 40), Color(180, 0, 0), Color::White, Color::White, font);
+	bool nextStep = true;
+	ToggleButton nextStepToggle(&nextStep, "timestep + 1", Vector2f(marginLeft + (marginLeft + bWidth) * buttons++, 815), Vector2f(bWidth, 20),
+		Color(200, 80, 0), Color(200, 80, 0), Color::White, Color::White, font);
 
 	while (window.isOpen())
 	{
@@ -74,19 +90,32 @@ int main()
 		simulationPause.Update(window);
 		clearWallsToggle.Update(window);
 		resetToggle.Update(window);
+		if (paused)
+			nextStepToggle.Update(window);
 
 		if (!paused)
-			sim.Step(.1f, 4);
+		{
+			sim.Step(.1f, 5);
+			nextStep = true;
+		}
+		else if (nextStep)
+		{
+			sim.Step(.1f, 5);
+			nextStep = false;
+		}
 		sim.HandleMouse(window);
 		sim.UpdateImage();
 
-		window.clear(Color(30, 30, 32));
+		window.clear(bgColor);
 
 		window.draw(sim);
+		window.draw(uiBorder);
 		window.draw(vectorFieldToggle);
 		window.draw(simulationPause);
 		window.draw(clearWallsToggle);
 		window.draw(resetToggle);
+		if (paused)
+			window.draw(nextStepToggle);
 
 		window.display();
 	}
