@@ -252,7 +252,7 @@ void FluidSimulation::LinearSolve(Axis axis, std::vector<float>& vec, std::vecto
 			for (unsigned int j = 1; j <= N; j++)
 			{
 				vec[IX(i, j)] = (vec0[IX(i, j)] + a * (vec[IX(i - 1, j)] + vec[IX(i + 1, j)] +
-					vec[IX(i, j - 1)] + vec[IX(i, j + 1)])) / (1 + 4 * a);
+					vec[IX(i, j - 1)] + vec[IX(i, j + 1)])) / c;
 			}
 		SetBounds(axis, vec, N);
 	}
@@ -261,7 +261,7 @@ void FluidSimulation::LinearSolve(Axis axis, std::vector<float>& vec, std::vecto
 void FluidSimulation::Diffuse(Axis axis, std::vector<float>& vec, std::vector<float>& vec0, float diff, float dt, unsigned int iterations, unsigned int N)
 {
 	float a = dt * diff * N * N;
-	LinearSolve(axis, vec, vec0, a, 1 + 6 * a, iterations, N);
+	LinearSolve(axis, vec, vec0, a, 1 + 4 * a, iterations, N);
 }
 
 void FluidSimulation::Project(std::vector<float>& vx, std::vector<float>& vy, std::vector<float>& p, std::vector<float>& div, unsigned int iterations, unsigned int N)
@@ -277,15 +277,7 @@ void FluidSimulation::Project(std::vector<float>& vx, std::vector<float>& vy, st
 	}
 	SetBounds(Axis::none, div, N);
 	SetBounds(Axis::none, p, N);
-	for (unsigned int k = 0; k < iterations; k++) {
-		for (unsigned int i = 1; i <= N; i++) {
-			for (unsigned int j = 1; j <= N; j++) {
-				p[IX(i, j)] = (div[IX(i, j)] + p[IX(i - 1, j)] + p[IX(i + 1, j)] +
-					p[IX(i, j - 1)] + p[IX(i, j + 1)]) / 4;
-			}
-		}
-		SetBounds(Axis::none, p, N);
-	}
+	LinearSolve(Axis::none, p, div, 1, 4, iterations, N);
 	for (unsigned int i = 1; i <= N; i++) {
 		for (unsigned int j = 1; j <= N; j++) {
 			vx[IX(i, j)] -= 0.5f*(p[IX(i + 1, j)] - p[IX(i - 1, j)]) / h;
