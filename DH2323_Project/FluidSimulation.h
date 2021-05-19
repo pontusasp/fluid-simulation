@@ -17,7 +17,7 @@ public:
 	void UpdateImage();
 
 	bool vectorFieldActive = false;
-	bool shouldClearWalls = true;
+	bool shouldClearWalls = false;
 	bool shouldReset = false;
 
 private:

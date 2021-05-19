@@ -123,10 +123,13 @@ void FluidSimulation::UpdateImage()
 
 			if (vectorFieldActive) {
 				if (int(x * vectorFieldScale - vectorFieldScale / 2) > x0 || int(y * vectorFieldScale - vectorFieldScale / 2) > y0) {
-					x0 = int(coord.x * vectorFieldScale - vectorFieldScale / 2);
-					y0 = int(coord.y * vectorFieldScale - vectorFieldScale / 2);
+					x0 = int(x * vectorFieldScale - vectorFieldScale / 2);
+					y0 = int(y * vectorFieldScale - vectorFieldScale / 2);
 					sf::Vector2u vecCoord(x0, y0);
-					vectorField.setVector(vecCoord, sf::Vector2f(vx[IX(x, y)], vy[IX(x, y)]));
+					if (!bWall[IX(x, y)])
+						vectorField.setVector(vecCoord, sf::Vector2f(vx[IX(x, y)], vy[IX(x, y)]));
+					else
+						vectorField.setVector(vecCoord, sf::Vector2f(0, 0));
 				}
 			}
 		}
