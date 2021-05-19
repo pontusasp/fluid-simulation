@@ -391,3 +391,4 @@ FodyWeavers.xsd
 *.aux
 *.fdb_latexmk
 *.synctex.gz
+Report/*.out
