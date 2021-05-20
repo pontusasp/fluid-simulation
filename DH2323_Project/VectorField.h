@@ -2,6 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 
+// Class that is used to keep track of information for each arrow in the VectorField
 class VectorFieldArrow : public sf::Drawable, public sf::Transformable
 {
 public:

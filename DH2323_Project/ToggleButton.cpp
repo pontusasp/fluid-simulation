@@ -25,6 +25,7 @@ ToggleButton::ToggleButton(bool * toggle, std::string text, sf::Vector2f locatio
 	this->colorOutline = colorOutline;
 }
 
+// Toggles boolean value if button has been clicked this frame
 void ToggleButton::Update(sf::Window& window)
 {
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && !justPressed)

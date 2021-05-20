@@ -9,6 +9,7 @@
 
 using namespace sf;
 
+// handle keyboard events, for now only if simulation should close
 void handleKeyboard(RenderWindow& window, Event& event)
 {
 	if (event.type == sf::Event::KeyPressed) {
@@ -23,6 +24,7 @@ void handleKeyboard(RenderWindow& window, Event& event)
 	}
 }
 
+// Handle events, for now only if simulation should close
 void handleEvents(RenderWindow& window, Event& event)
 {
 	if (event.type == sf::Event::Closed)
@@ -32,16 +34,19 @@ void handleEvents(RenderWindow& window, Event& event)
 
 int main()
 {
-	Vector2u simRes(800, 800);
-	Vector2u toolRes(simRes.x, 50);
-	Vector2u resolution(simRes.x, simRes.y + toolRes.y);
-	RenderWindow window(sf::VideoMode(resolution.x, resolution.y), "Fluid Simulation Project by Pontus Asp", sf::Style::Titlebar | sf::Style::Close);
+	Vector2u simRes(800, 800); // pixel size of simulation
+	Vector2u toolRes(simRes.x, 50); // pixel size of UI portion
+	Vector2u resolution(simRes.x, simRes.y + toolRes.y); // total pixel size of contents
+	RenderWindow window(sf::VideoMode(resolution.x, resolution.y), "Fluid Simulation Project by Pontus Asp", sf::Style::Titlebar | sf::Style::Close); // Create a window
 
-	Color bgColor(30, 30, 32);
+	Color bgColor(30, 30, 32); // Our clearing color, and background color for toolbar
 
+	// Initialize our Fluid Sim class with a 200x200 grid resolution, with a 1/8 scale on the
+	// vectorfield (every 8th grid will have a vector arrow). Then we set the diffusion and viscosity values.
 	FluidSimulation sim(200, .125, 0.00000001f, 0.00000002f);
-	sim.setScale(Vector2f(simRes.x, simRes.y));
+	sim.setScale(Vector2f(simRes.x, simRes.y)); // Scale up our simulation to fit the screen.
 
+	// load font for buttons
 	sf::Font font;
 	if (!font.loadFromFile("upheavtt.ttf"))
 	{
@@ -49,11 +54,12 @@ int main()
 		return -1;
 	}
 
-	int buttons = 0;
-	bool paused = false;
-	float marginLeft = 12.5f;
-	float bWidth = 145;
+	int buttons = 0; // button counter for easier placement of them
+	bool paused = false; // dictates if simulation is paused or not
+	float marginLeft = 12.5f; // margin of each button
+	float bWidth = 145; // width of each button
 
+	// Create background rectangle behind buttons
 	RectangleShape uiBorder;
 	float borderThickness = 2.f;
 	uiBorder.setSize(Vector2f(toolRes.x - borderThickness * 2, toolRes.y - borderThickness * 2));
@@ -62,7 +68,7 @@ int main()
 	uiBorder.setOutlineThickness(borderThickness);
 	uiBorder.setPosition(borderThickness, simRes.y + borderThickness);
 
-
+	// Initialize all our buttons, probably pretty self explanatory, check header file to see what each value does.
 	ToggleButton vectorFieldToggle(&sim.vectorFieldActive, "vector field", Vector2f(marginLeft + (marginLeft + bWidth) * buttons++, 815), Vector2f(bWidth, 20),
 		Color(0, 150, 0), Color(40, 40, 40), Color::White, Color::White, font);
 
@@ -79,6 +85,7 @@ int main()
 	ToggleButton nextStepToggle(&nextStep, "timestep + 1", Vector2f(marginLeft + (marginLeft + bWidth) * buttons++, 815), Vector2f(bWidth, 20),
 		Color(200, 80, 0), Color(200, 80, 0), Color::White, Color::White, font);
 
+	// Our main loop that will power everthing in our simulation and window
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -86,38 +93,42 @@ int main()
 		{
 			handleEvents(window, event);
 		}
+
+		// Check our buttons if we have clicked on them
 		vectorFieldToggle.Update(window);
 		simulationPause.Update(window);
 		clearWallsToggle.Update(window);
 		resetToggle.Update(window);
-		if (paused)
+		if (paused) // Only check for clicks on the stepping button if the game is paused
 			nextStepToggle.Update(window);
 
 		if (!paused)
 		{
-			sim.Step(.1f, 5);
+			sim.Step(.1f, 5); // Keep running simulation if not paused
 			nextStep = true;
 		}
 		else if (nextStep)
 		{
-			sim.Step(.1f, 5);
+			sim.Step(.1f, 5); // Will step only once before nextStep is reset and has to be set to true through button press
 			nextStep = false;
 		}
-		sim.HandleMouse(window);
-		sim.UpdateImage();
+		sim.HandleMouse(window); // Update mouse in simulation (draw walls and velocity/density)
+		sim.UpdateImage(); // Update our MeshImage and VectorField in the simulation to prepare to be drawn to screen
 
-		window.clear(bgColor);
+		window.clear(bgColor); // clear screen
 
-		window.draw(sim);
+		window.draw(sim); // draws our MeshImage and VectorField (which shows density and velocity respectively)
+
+		// Draw our UI background and buttons
 		window.draw(uiBorder);
 		window.draw(vectorFieldToggle);
 		window.draw(simulationPause);
 		window.draw(clearWallsToggle);
 		window.draw(resetToggle);
-		if (paused)
+		if (paused) // Only draw the stepping button if simulation is paused
 			window.draw(nextStepToggle);
 
-		window.display();
+		window.display(); // Push everything we have drawn to the buffer to the screen
 	}
 
 	return 0;

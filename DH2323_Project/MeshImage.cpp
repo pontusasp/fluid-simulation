@@ -90,16 +90,19 @@ void MeshImage::paintColor(sf::Vector2f coord, sf::Color color)
 	}
 }
 
+// Converts a coordinate from screen space to corresponding MeshImage coordinate space
 sf::Vector2f MeshImage::fromScreenSpacef(sf::Vector2f coord)
 {
 	return sf::Vector2f(coord.x / width_quad, coord.y / height_quad);
 }
 
+// Converts a coordinate from screen space to corresponding MeshImage coordinate
 sf::Vector2u MeshImage::fromScreenSpace(sf::Vector2f coord)
 {
 	return sf::Vector2u(coord.x / width_quad, coord.y / height_quad);
 }
 
+// Draws a chess pattern on the MeshImage
 void MeshImage::paintDebug()
 {
 	for (unsigned int x = 0; x < resolutionX; x++)
